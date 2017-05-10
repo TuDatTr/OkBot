@@ -1,2 +1,2 @@
 # OkBot
-An Ok-ish bot :)
+An Ok-ish discord bot :)
