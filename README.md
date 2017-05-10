@@ -1,2 +1,2 @@
 # OkBot
-Discord Bot, just to test stuff
+An Ok-ish bot :)
