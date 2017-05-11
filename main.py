@@ -4,7 +4,7 @@
 # pip install bs4
 # pip install imgurpython
 # pip install youtube-dl
-# put this (view raw) in the base directory:
+# put this (view raw) in the base directory for windows:
 #   https://github.com/Just-Some-Bots/MusicBot/blob/ea5e0daebd384ec8a14c9a585da399934e2a6252/libopus-0.x64.dll
 
 
@@ -21,6 +21,7 @@ from imgurpython import ImgurClient
 client = ImgurClient(config.client_id, config.client_secret)
 
 discord.opus.load_opus("libopus-0.x64.dll")
+# discord.opus.load_opus("/usr/lib/libopus.so")
 
 description = '''An Ok-ish bot'''
 
