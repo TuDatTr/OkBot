@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from discord.ext import commands
 from os import listdir
 from imgurpython import ImgurClient
+
 client = ImgurClient(config.client_id, config.client_secret)
 
 discord.opus.load_opus("libopus-0.x64.dll")
@@ -24,6 +25,7 @@ ydl_opts = {
         }],
     }
 if not discord.opus.is_loaded():
+    # libopus-0.x64.dll is required to run voice
     discord.opus.load_opus("libopus-0.x64.dll")
 
 
@@ -139,7 +141,6 @@ async def monstercat(ctx, member: discord.Member = None):
     voice = await bot.join_voice_channel(channel)
     player = await voice.create_ytdl_player('https://www.twitch.tv/monstercat', ytdl_options=ydl_opts, options="-af volume=-25dB")
     player.start()
-
 
 
 @bot.command(pass_context=True)
