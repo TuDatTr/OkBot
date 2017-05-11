@@ -3,6 +3,10 @@
 # pip install asyncio
 # pip install bs4
 # pip install imgurpython
+# pip install youtube-dl
+# put this (view raw) in the base directory:
+#   https://github.com/Just-Some-Bots/MusicBot/blob/ea5e0daebd384ec8a14c9a585da399934e2a6252/libopus-0.x64.dll
+
 
 import discord
 import random
