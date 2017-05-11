@@ -4,6 +4,7 @@
 # pip install bs4
 # pip install imgurpython
 # pip install youtube-dl
+# pip install chatterbot
 # put this (view raw) in the base directory for windows:
 #   https://github.com/Just-Some-Bots/MusicBot/blob/ea5e0daebd384ec8a14c9a585da399934e2a6252/libopus-0.x64.dll
 
@@ -13,6 +14,7 @@ import random
 import asyncio
 import requests
 import config
+from chatterbot import ChatBot
 from bs4 import BeautifulSoup
 from discord.ext import commands
 from os import listdir
@@ -38,6 +40,11 @@ ydl_opts = {
 if not discord.opus.is_loaded():
     # libopus-0.x64.dll is required to run voice
     discord.opus.load_opus("libopus-0.x64.dll")
+
+
+chatbot = ChatBot('OkBot')
+
+chatting = 0
 
 
 @bot.event
@@ -91,7 +98,7 @@ async def sblist(ctx, member: discord.Member = None):
     """Sends PM with available soundboard sounds"""
     if member is None:
         member = ctx.message.author
-    message= "Available Sounds: \n"
+    message = "Available Sounds: \n"
     for f in listdir("soundboard/"):
         message += (f.split(".")[0] + "\n")
     await bot.send_message(member, message)
@@ -252,5 +259,25 @@ async def delete(ctx, count, member: discord.Member = None):
     else:
         await bot.add_reaction(ctx.message, "😞")
 
+
+@bot.command(pass_context=True)
+async def chat(ctx, member: discord.Member = None):
+    """Activates chatbot"""
+    global chatting
+    if chatting == 0:
+        chatting = 1
+        await bot.say("Chatting enabled!")
+    elif chatting == 1:
+        chatting = 0
+        await bot.say("Chatting disabled!")
+
+
+@bot.event
+async def on_message(message):
+    if not message.author.bot:
+        if chatting == 1:
+            await bot.send_typing(message.channel)
+            await bot.send_message(message.channel, chatbot.get_response(message.content))
+    await bot.process_commands(message)
 
 bot.run(config.bottoken)
