@@ -1,3 +1,9 @@
+# requires:
+# pip install discord.py
+# pip install asyncio
+# pip install bs4
+# pip install imgurpython
+
 import discord
 import random
 import asyncio
