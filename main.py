@@ -42,7 +42,10 @@ if not discord.opus.is_loaded():
     discord.opus.load_opus("libopus-0.x64.dll")
 
 
-chatbot = ChatBot('OkBot')
+chatbot = ChatBot('OkBot',
+                  logic_adapters=[
+                      'chatterbot.logic.MathematicalEvaluation'
+                  ])
 
 chatting = 0
 
@@ -274,7 +277,7 @@ async def chat(ctx, member: discord.Member = None):
 
 @bot.event
 async def on_message(message):
-    if not message.author.bot:
+    if not message.author.bot and not message.content.startswith("?"):
         if chatting == 1:
             await bot.send_typing(message.channel)
             await bot.send_message(message.channel, chatbot.get_response(message.content))
