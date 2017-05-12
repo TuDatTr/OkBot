@@ -43,12 +43,14 @@ if not discord.opus.is_loaded():
 
 
 chatbot = ChatBot('OkBot',
+                  input_adapter="chatterbot.input.VariableInputTypeAdapter",
                   logic_adapters=[
-                      'chatterbot.logic.MathematicalEvaluation'
-                  ])
-
+                      'chatterbot.logic.MathematicalEvaluation',
+                      'chatterbot.logic.BestMatch'
+                  ],
+                  trainer='chatterbot.trainers.ChatterBotCorpusTrainer')
+DEFAULT_SESSION_ID = chatbot.default_session.id
 chatting = 0
-
 
 @bot.event
 async def on_ready():
@@ -263,8 +265,8 @@ async def delete(ctx, count, member: discord.Member = None):
         await bot.add_reaction(ctx.message, "😞")
 
 
-@bot.command(pass_context=True)
-async def chat(ctx, member: discord.Member = None):
+@bot.command()
+async def chat():
     """Activates chatbot"""
     global chatting
     if chatting == 0:
@@ -275,12 +277,37 @@ async def chat(ctx, member: discord.Member = None):
         await bot.say("Chatting disabled!")
 
 
+async def get_feedback(question):
+    res = await bot.wait_for_reaction(message=question)
+    if res.reaction.emoji == '👍':
+        await bot.send_message(question.channel, "Learned 👍")
+        return True
+    elif res.reaction.emoji == '👎':
+        await bot.send_message(question.channel, "Not learned 👎")
+        return False
+    else:
+        await bot.send_message(question.channel, "Please react with 👍 or 👎")
+        return await get_feedback(question)
+
+
 @bot.event
 async def on_message(message):
     if not message.author.bot and not message.content.startswith("?"):
         if chatting == 1:
             await bot.send_typing(message.channel)
-            await bot.send_message(message.channel, chatbot.get_response(message.content))
+            input_statement = chatbot.input.process_input_statement(message.content)
+            statement, response = chatbot.generate_response(input_statement, DEFAULT_SESSION_ID)
+            await bot.send_message(message.channel, response)
+            question = await bot.send_message(message.channel, "Was that a valid answer?")
+            if await get_feedback(question):
+                chatbot.learn_response(response, input_statement)
+            chatbot.learn_response(input_statement, None)
+
+            chatbot.conversation_sessions.update(
+                chatbot.default_session.id_string,
+                (statement, response, )
+            )
+
     await bot.process_commands(message)
 
 bot.run(config.bottoken)
